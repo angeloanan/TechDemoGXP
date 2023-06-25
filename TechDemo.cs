@@ -61,13 +61,12 @@ public class TechDemo : Game {
 
   void Update() {
     this.targetFps = Input.GetKey(Key.S) ? 5: 60;
-    // Console.WriteLine("{0}, {1}", Input.mouseX, Input.mouseY);
     
     _debugText.Clear(0x00);
     _debugText.TextAlign(CenterMode.Min, CenterMode.Min);
 
-    var debugString = "Mouse: " + Input.mouseX + ", " + Input.mouseY + " | Trigger: " +
-                 ColliderManager.Main.TriggerColliderCount() + ", Solid: " + ColliderManager.Main.SolidColliderCount();
+    var debugString =
+      $"Mouse: {Input.mouseX}, {Input.mouseY} | Trigger: {ColliderManager.Main.TriggerColliderCount()}, Solid: {ColliderManager.Main.SolidColliderCount()}";
 
     _debugText.Text(debugString, 0, 0);
     
@@ -80,6 +79,7 @@ public class TechDemo : Game {
 
   private static void Main() {
     UnitTests.RunAll();
+    
     new TechDemo().Start();
   }
 }

@@ -15,6 +15,6 @@ class Bumper : GXPEngine.LineSegment {
 
   protected override void OnDestroy() {
     // Remove the collider when the sprite is destroyed:
-    ColliderManager.Main.AddSolidCollider(_collider);
+    ColliderManager.Main.RemoveSolidCollider(_collider);
   }
 }
