@@ -35,43 +35,37 @@ class Ball : AnimationSprite {
     // TODO: Refactor MoveUntilCollision to use out variables
     var shouldStillMove = true;
     var time = 1F;
-    while (shouldStillMove || time < 0.00001F) {
+    // Repetitively move the ball THIS frame
+    while (shouldStillMove || time < 0.001F) {
       var collision = _engine.MoveUntilCollision(_ballCollider, Velocity, time);
 
       if (collision != null) {
         Console.WriteLine(
           $"Ball collided with {collision.Other.Owner} at {collision.Other.Position} with normal {collision.Normal}");
-        
-        // TODO: Refactor to switch(typeof otherType)
-        if (collision.Other.Owner is Ball otherBall) {
-          // Special case - Ball Ball collision
 
-          var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
-          var eachBallVelocity = totalVelocity / 2;
+        // TODO: Refactor to switch(typeof collision.Other.Owner)
+        switch (collision.Other.Owner) {
+          case Ball _:
+            handleBallBallCollision(collision);
+            break;
 
-          var collisionNormal = (collision.Other.Position - this._ballCollider.Position).Perpendicular()
-            .RotatedDegrees(90);
-
-          Gizmos.DrawLine(_ballCollider.Position.X, _ballCollider.Position.Y,
-            _ballCollider.Position.X + collisionNormal.X, _ballCollider.Position.Y + collisionNormal.Y,
-            null, 0xffff0000);
-          this.Velocity =
-            collisionNormal.Normalized() * eachBallVelocity; // bug? need to change both velocities at the same time
+          default: {
+            // Reflect velocity, considering the normal of the collision:
+            // TODO: Bug: When hitting a platform, the ball gets stuck in the platform
+            Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
+            Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 50, collision.Normal.Y * 50);
+            Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 2);
+            break;
+          }
         }
-        else {
-          // Reflect velocity, considering the normal of the collision:
-          Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
-          Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 50, collision.Normal.Y * 50);
-          Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 2);
-        }
-        
+
         _bounces += 1;
         time -= collision.TimeOfImpact;
       }
       else {
         shouldStillMove = false;
       }
-      
+
       x = _ballCollider.Position.X;
       y = _ballCollider.Position.Y;
     }
@@ -80,6 +74,24 @@ class Ball : AnimationSprite {
       LateDestroy();
       Console.WriteLine("Removing projectile");
     }
+  }
+
+  private void handleBallBallCollision(CollisionDetail collision) {
+    var otherBall = (Ball)collision.Other.Owner;
+
+    // Special case - Ball Ball collision
+    var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
+    var eachBallVelocity = totalVelocity / 2; // CHEAT: we assume both balls have the same mass
+
+    var collisionNormal = (collision.Other.Position - this._ballCollider.Position).Perpendicular()
+      .RotatedDegrees(90);
+
+    Gizmos.DrawLine(_ballCollider.Position.X, _ballCollider.Position.Y,
+      _ballCollider.Position.X + collisionNormal.X, _ballCollider.Position.Y + collisionNormal.Y,
+      null, 0xffff0000);
+    
+    this.Velocity =
+      collisionNormal.Normalized() * eachBallVelocity; // bug? need to change both velocities at the same time
   }
 
   public void scrambleDirection() {

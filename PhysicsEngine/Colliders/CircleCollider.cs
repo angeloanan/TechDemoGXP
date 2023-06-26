@@ -46,21 +46,44 @@ namespace Physics {
       }
     }
 
-    // TESTED, WORKING PROPERLY
-    private CollisionDetail GetCollisionTime(CircleCollider circle, Vec2 velocity) {
-      if (velocity.X == 0 && velocity.Y == 0) return null;
-      if (this == circle) return null;
+    // TODO: REWRITING USING ABC
+    private CollisionDetail GetCollisionTime(CircleCollider otherCircle, Vec2 velocity) {
+      if (velocity.X == 0 && velocity.Y == 0) return null; // Velocity is zero, no collision
+      if (this == otherCircle) return null;
 
-      // Calculate the distance between the two circles
-      var distance = (this.Position - circle.Position).Length();
-      var totalRadius = this.Radius + circle.Radius + Tolerance;
+      var v = velocity;
+      var u = this.Position - otherCircle.Position;
+      
+      var a = v.Length() * v.Length();
+      var b = Vec2.Dot(2 * u, v);
+      var c = (u.Length() * u.Length()) - Math.Pow((this.Radius + otherCircle.Radius), 2);
+      
+      if (c < 0) {
+        if (b < 0) {
+          return new CollisionDetail(velocity.Normalized(), otherCircle, 0); // Overlapping
+        }
+        else {
+          return null; // Moving away from each other
+        }
+      }
+      
+      var D = (b * b) - (4 * a * c);
+      if (D < 0) return null;
 
-      // Only collide if the circles are overlapping
-      if (distance > totalRadius) return null;
+      var t = (-b - Math.Sqrt(D)) / (2 * a);
+      if (t >= 1) return null;
+      return new CollisionDetail(velocity.Normalized(), otherCircle, (float)t);
 
-      // Calculate the time to collision
-      var timeToCollision = (totalRadius - distance + Tolerance) / velocity.Length();
-      return new CollisionDetail(velocity.Normalized(), circle, timeToCollision);
+      // // Calculate the distance between the two circles
+      // var distance = (this.Position - otherCircle.Position).Length();
+      // var totalRadius = this.Radius + otherCircle.Radius + Tolerance;
+      //
+      // // Only collide if the circles are overlapping
+      // if (distance > totalRadius) return null;
+      //
+      // // Calculate the time to collision
+      // var timeToCollision = (totalRadius - distance + Tolerance) / velocity.Length();
+      // return new CollisionDetail(velocity.Normalized(), otherCircle, timeToCollision);
     }
 
     // TESTED, WORKING PROPERLY

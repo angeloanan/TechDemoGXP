@@ -50,6 +50,7 @@ namespace Physics {
     
     /// <summary>
     ///	Moves the given collider while checking for collisions with all solid colliders.
+    /// If a collision is detected, the collider will be moved to the point of collision.
     /// <br/>
     /// Also known as just `move()` in other engines.
     /// </summary>
@@ -73,6 +74,7 @@ namespace Physics {
         }
       }
 
+      // MOVING the collider
       if (earliestCollision == null) {
         // No collision, move the collider normally
         collider.Position += velocity;
