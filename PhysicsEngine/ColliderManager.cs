@@ -55,9 +55,10 @@ namespace Physics {
     /// </summary>
     /// <param name="collider">The collider to be moved; Doesn't need to be in SolidCollider / TriggerCollider</param>
     /// <param name="velocity">Velocity (pixel) of how much collider should move</param>
+    /// <param name="maxTime">The amount of time (in frames) to move</param>
     /// <returns>The detail of collision OR null</returns>
-    public CollisionDetail MoveUntilCollision(Collider collider, Vec2 velocity) {
-      CollisionDetail firstCollision = null;
+    public CollisionDetail MoveUntilCollision(Collider collider, Vec2 velocity, float maxTime = 1) {
+      CollisionDetail earliestCollision = null;
 
       // Loop over all solid colliders, and find the earliest collision on current frame
       foreach (var other in _solidColliders) {
@@ -65,23 +66,23 @@ namespace Physics {
 
         var collision = collider.GetCollisionTime(other, velocity);
         if (collision == null) continue; // No collision
-        if (collision.TimeOfImpact > 1) continue; // Collision is not processed in this frame
+        if (collision.TimeOfImpact > maxTime) continue; // Collision is not processed in this call
 
-        if (firstCollision == null || firstCollision.TimeOfImpact > collision.TimeOfImpact) {
-          firstCollision = collision;
+        if (earliestCollision == null || earliestCollision.TimeOfImpact > collision.TimeOfImpact) {
+          earliestCollision = collision;
         }
       }
 
-      if (firstCollision == null) {
+      if (earliestCollision == null) {
         // No collision, move the collider normally
         collider.Position += velocity;
       }
       else {
         // Move the collider until the collision
-        collider.Position += velocity * firstCollision.TimeOfImpact;
+        collider.Position += velocity * earliestCollision.TimeOfImpact;
       }
 
-      return firstCollision;
+      return earliestCollision;
     }
 
     /// <summary>

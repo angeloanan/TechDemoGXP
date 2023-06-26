@@ -32,39 +32,49 @@ class Ball : AnimationSprite {
     // Gravity
     Velocity += new Vec2(0, 10) / 60;
 
-    CollisionDetail collision = _engine.MoveUntilCollision(_ballCollider, Velocity);
-    if (collision != null) {
-      Console.WriteLine("Ball collided with " + collision.Other.Owner + " at " + collision.Other.Position +
-                        " with normal " + collision.Normal + "");
-      if (collision.Other.Owner is Ball) {
-        // Special case - Ball Ball collision
-        var otherBall = (Ball)collision.Other.Owner;
+    // TODO: Refactor MoveUntilCollision to use out variables
+    var shouldStillMove = true;
+    var time = 1F;
+    while (shouldStillMove || time < 0.00001F) {
+      var collision = _engine.MoveUntilCollision(_ballCollider, Velocity, time);
 
-        var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
-        var eachBallVelocity = totalVelocity / 2;
+      if (collision != null) {
+        Console.WriteLine(
+          $"Ball collided with {collision.Other.Owner} at {collision.Other.Position} with normal {collision.Normal}");
+        
+        // TODO: Refactor to switch(typeof otherType)
+        if (collision.Other.Owner is Ball otherBall) {
+          // Special case - Ball Ball collision
 
-        var collisionNormal = (collision.Other.Position - this._ballCollider.Position).Perpendicular().RotatedDegrees(90);
+          var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
+          var eachBallVelocity = totalVelocity / 2;
 
-        Gizmos.DrawLine(_ballCollider.Position.X, _ballCollider.Position.Y,
-          _ballCollider.Position.X + collisionNormal.X, _ballCollider.Position.Y + collisionNormal.Y, 
-          null, 0xffff0000);
-        this.Velocity = collisionNormal.Normalized() * eachBallVelocity; // bug? need to change both velocities at the same time
+          var collisionNormal = (collision.Other.Position - this._ballCollider.Position).Perpendicular()
+            .RotatedDegrees(90);
+
+          Gizmos.DrawLine(_ballCollider.Position.X, _ballCollider.Position.Y,
+            _ballCollider.Position.X + collisionNormal.X, _ballCollider.Position.Y + collisionNormal.Y,
+            null, 0xffff0000);
+          this.Velocity =
+            collisionNormal.Normalized() * eachBallVelocity; // bug? need to change both velocities at the same time
+        }
+        else {
+          // Reflect velocity, considering the normal of the collision:
+          Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
+          Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 50, collision.Normal.Y * 50);
+          Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 2);
+        }
+        
         _bounces += 1;
+        time -= collision.TimeOfImpact;
       }
       else {
-        // Reflect velocity, considering the normal of the collision:
-        Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
-        _ballCollider.Position += Velocity * (1 - collision.TimeOfImpact);
-        Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 10, collision.Normal.Y * 10);
-        Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 0);
-        _bounces += 1;
+        shouldStillMove = false;
       }
+      
+      x = _ballCollider.Position.X;
+      y = _ballCollider.Position.Y;
     }
-
-    // Console.WriteLine("Ball velocity" + _velocity);
-
-    x = _ballCollider.Position.X;
-    y = _ballCollider.Position.Y;
 
     if (_bounces >= MaxBounces || x < 0 || x > game.width || y < 0 || y > game.height) {
       LateDestroy();
