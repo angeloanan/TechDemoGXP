@@ -96,14 +96,14 @@ public struct Vec2 {
   }
   
   /// <summary>
-  /// Projects this vector onto the given vector.
+  /// Projects this vector onto the given vector (`other`).
   /// </summary>
   /// <param name="other"></param>
   /// <returns>The length of the projected Vector</returns>
   public float ProjectLength(Vec2 other) {
     other = other.Normalized();
 
-    return (Vec2.Dot(this, other));
+    return (Dot(this, other));
   }
   
   /// <summary>
