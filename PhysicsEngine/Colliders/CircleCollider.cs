@@ -62,7 +62,9 @@ namespace Physics {
 
       if (c < 0) {
         if (b < 0) {
-          return new CollisionDetail(velocity.Normalized(), otherCircle, 0); // Overlapping
+          var poi = this.Position;
+          var collisionNormal = (poi - otherCircle.Position).Normalized();
+          return new CollisionDetail(collisionNormal, otherCircle, 0); // Overlapping
         }
         else {
           return null; // Moving away from each other
@@ -73,8 +75,13 @@ namespace Physics {
       if (D < 0) return null;
 
       var t = (-b - Math.Sqrt(D)) / (2 * a);
-      if (t >= 1) return null;
-      return new CollisionDetail(velocity.Normalized(), otherCircle, (float)t);
+      if (t >= 0 && t < 1) {
+        var poi = this.Position + velocity * (float)t;
+        var collisionNormal = (poi - otherCircle.Position).Normalized();
+        return new CollisionDetail(collisionNormal, otherCircle, (float)t);
+      }
+
+      return null;
 
       // // Calculate the distance between the two circles
       // var distance = (this.Position - otherCircle.Position).Length();
@@ -96,7 +103,8 @@ namespace Physics {
       if (this.Position.X + this.Radius + velocity.X < box.Position.X - box.HalfWidth || // Right of box
           this.Position.X - this.Radius + velocity.X > box.Position.X + box.HalfWidth || // Left of box
           this.Position.Y + this.Radius + velocity.Y < box.Position.Y - box.HalfHeight || // Above box
-          this.Position.Y - this.Radius + velocity.Y > box.Position.Y + box.HalfHeight) { // Below box
+          this.Position.Y - this.Radius + velocity.Y > box.Position.Y + box.HalfHeight) {
+        // Below box
         return null; // Never collide
       }
 
@@ -149,17 +157,13 @@ namespace Physics {
       return new CollisionDetail(horizontalLine.Normal, horizontalLine, timeOfImpact);
     }
 
-    // TODO: Rewriting using Week 5 - Slide 60+
+    // Tested working properly - June 26 @ 7:16AM
+    // Rewrote using exact Point-Line distance formula
+    // TODO: Further rewrite to allow both normal to be reflected
     CollisionDetail GetCollisionTime(LineSegment line, Vec2 velocity) {
       var lineVector = line.EndPosition - line.StartPosition;
-      // var differenceVector = this.Position - line.StartPosition;
-      //
-      // var projectedLength = differenceVector.ProjectLength(lineVector);
-      // var closestPoint = line.StartPosition + (lineVector.Normalized() * projectedLength);
-      //
-      // var distanceToLine = (closestPointCoord - this.Position).Length() - this.Radius;
+      var otherLineVector = line.StartPosition - line.EndPosition;
 
-      // Start changing here
       var a = distanceToLine(line.StartPosition, line.EndPosition, this.Position) - this.Radius;
       var b = velocity.ProjectLength(lineVector.UnitNormal());
 
@@ -181,8 +185,8 @@ namespace Physics {
       var pointOfImpact = this.Position + velocity * timeOfImpact;
       var d = (pointOfImpact - line.StartPosition).ProjectLength(lineVector); // Distance along the line
       if (d >= 0 && d <= lineVector.Length()) return new CollisionDetail(lineVector.UnitNormal(), line, timeOfImpact);
-      
-      
+
+
       // Gizmos.DrawLine(line.StartPosition.X, line.StartPosition.Y, line.StartPosition.X + differenceVector.X,
       //                   line.StartPosition.Y + differenceVector.Y);
       // Gizmos.DrawLine(line.StartPosition.X, line.StartPosition.Y, closestPoint.X, closestPoint.Y, null, 0xffff0000);
