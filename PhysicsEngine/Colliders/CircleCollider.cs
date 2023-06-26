@@ -186,26 +186,7 @@ namespace Physics {
       var d = (pointOfImpact - line.StartPosition).ProjectLength(lineVector); // Distance along the line
       if (d >= 0 && d <= lineVector.Length()) return new CollisionDetail(lineVector.UnitNormal(), line, timeOfImpact);
 
-
-      // Gizmos.DrawLine(line.StartPosition.X, line.StartPosition.Y, line.StartPosition.X + differenceVector.X,
-      //                   line.StartPosition.Y + differenceVector.Y);
-      // Gizmos.DrawLine(line.StartPosition.X, line.StartPosition.Y, closestPoint.X, closestPoint.Y, null, 0xffff0000);
-      // Gizmos.DrawLine(closestPoint.X, closestPoint.Y, this.Position.X, this.Position.Y);
       return null;
-
-      // DEBUG DRAWING
-
-      // var timeOfImpact = distanceToLine / velocity.Length(); // that's the bug
-      // Console.WriteLine(distanceToLine);
-
-
-      // if (projectedLength < 0 || projectedLength > lineVector.Length()) {
-      //   return null; // Outside of line segment
-      // } else if (distanceToLine > 0) {
-      //   return null; // Not colliding
-      // } else {
-      //   return new CollisionDetail(lineVector.UnitNormal(), line, timeOfImpact - (float)0.1);
-      // }
     }
 
     /// <summary>
