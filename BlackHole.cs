@@ -1,15 +1,21 @@
 using GXPEngine;
 using Physics;
 
-public class BlackHole : GXPEngine.GameObject {
+public class BlackHole : EasyDraw {
   private readonly CircleCollider _collider;
   private readonly float _force;
   
-  public BlackHole(Vec2 center, float radius, float force = 1F) {
+  public BlackHole(Vec2 center, float radius, float force = 1F) : base((int)radius * 2, (int) radius * 2) {
     _collider = new CircleCollider(this, center, radius);
     _force = force;
 
     ColliderManager.Main.AddTriggerCollider(_collider);
+
+    this.x = center.X;
+    this.y = center.Y;
+    SetOrigin(radius, radius);
+    Fill(100, 100, 100);
+    Ellipse(radius, radius, radius * 2, radius * 2);
   }
   
   void Update() {
