@@ -54,6 +54,9 @@ class Ball : AnimationSprite {
       else {
         // Reflect velocity, considering the normal of the collision:
         Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
+        _ballCollider.Position += Velocity * (1 - collision.TimeOfImpact);
+        Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 10, collision.Normal.Y * 10);
+        Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 0);
         _bounces += 1;
       }
     }

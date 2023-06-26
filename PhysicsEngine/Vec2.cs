@@ -115,7 +115,7 @@ public struct Vec2 {
   public Vec2 Reflect(Vec2 normal, float elasticity = 1) {
     normal = normal.Normalized();
     
-    return (1 + elasticity) * Dot(this, normal) * normal - this;
+    return this - (1 + elasticity) * Dot(this, normal) * normal;
   }
   
   // Generic helper for operations
