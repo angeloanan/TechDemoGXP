@@ -34,7 +34,12 @@ public class TechDemo : Game {
     AddChild(new Player(new Vec2(80, 520)));
     
     // Diagonal Line TL
-    AddChild(new Wall(new Vec2(30, 170), new Vec2(150, 50)));
+    AddChild(new Wall(new Vec2(150, 50), new Vec2(30, 170)));
+    
+    // Random line Right
+    AddChild(new Wall(new Vec2(770, 100), new Vec2(600, 300)));
+    
+    AddChild(new BlackHole(new Vec2(220, 350), 100));
     
     // DEBUG
     _debugText = new EasyDraw(500, 24);
@@ -60,7 +65,7 @@ public class TechDemo : Game {
   }
 
   void Update() {
-    this.targetFps = Input.GetKey(Key.S) ? 5: 60;
+    this.targetFps = Input.GetKey(Key.S) ? 3: 60;
     
     _debugText.Clear(0x00);
     _debugText.TextAlign(CenterMode.Min, CenterMode.Min);
