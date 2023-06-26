@@ -8,6 +8,14 @@ namespace GXPEngine {
       LengthTest();
       NormalizedTest();
       RotateTest();
+      DegreeToRadianTest();
+      RadianToDegreeTest();
+      GetUnitVectorDegreesTest();
+      GetUnitVectorRadiansTest();
+      SetAngleDegreesTest();
+      SetAngleRadiansTest();
+      GetAngleDegreesTest();
+      GetAngleRadiansTest();
       // UnitNormalTest();
       // UnitTangentTest();
       // ReflectionTest();
@@ -48,6 +56,54 @@ namespace GXPEngine {
 
       vec = new Vec2(6, 8);
       Assert.AreEqual(new Vec2(-8, 6), vec.RotatedDegrees(90.0f));
+    }
+    
+    public static void DegreeToRadianTest() {
+      Assert.AreEqual((float)Math.PI / 2, Vec2.Deg2Rad(90));
+      Assert.AreEqual((float)Math.PI, Vec2.Deg2Rad(180));
+      Assert.AreEqual((float)Math.PI * 2, Vec2.Deg2Rad(360));
+    }
+    
+    public static void RadianToDegreeTest() {
+      Assert.AreEqual(90, Vec2.Rad2Deg((float)Math.PI / 2));
+      Assert.AreEqual(180, Vec2.Rad2Deg((float)Math.PI));
+      Assert.AreEqual(360, Vec2.Rad2Deg((float)Math.PI * 2));
+    }
+    
+    public static void GetUnitVectorDegreesTest() {
+      Assert.AreEqual(new Vec2(1, 0), Vec2.GetUnitVectorDeg(0));
+      Assert.AreEqual(new Vec2(0, 1), Vec2.GetUnitVectorDeg(90));
+      Assert.AreEqual(new Vec2(-1, 0), Vec2.GetUnitVectorDeg(180));
+      Assert.AreEqual(new Vec2(0, -1), Vec2.GetUnitVectorDeg(270));
+    }
+    
+    public static void GetUnitVectorRadiansTest() {
+      Assert.AreEqual(new Vec2(1, 0), Vec2.GetUnitVectorRad(0));
+      Assert.AreEqual(new Vec2(0, 1), Vec2.GetUnitVectorRad((float)Math.PI / 2));
+      Assert.AreEqual(new Vec2(-1, 0), Vec2.GetUnitVectorRad((float)Math.PI));
+      Assert.AreEqual(new Vec2(0, -1), Vec2.GetUnitVectorRad((float)Math.PI * 1.5f));
+    }
+    
+    public static void SetAngleDegreesTest() {
+      Vec2 vec = new Vec2(1, 0);
+      vec.SetAngleDegrees(90);
+      Assert.AreEqual(new Vec2(0, 1), vec);
+    }
+    
+    public static void SetAngleRadiansTest() {
+      Vec2 vec = new Vec2(1, 0);
+      vec.SetAngle((float)Math.PI / 2);
+      Assert.AreEqual(new Vec2(0, 1), vec);
+    }
+    
+    public static void GetAngleRadiansTest() {
+      Vec2 vec = new Vec2(0, 1);
+      Assert.AreEqual((float)Math.PI / 2, vec.GetAngle());
+    }
+    
+    public static void GetAngleDegreesTest() {
+      Vec2 vec = new Vec2(1, 0);
+      Assert.AreEqual(0, vec.GetAngleDegrees());
     }
     
     public static void UnitNormalTest() {

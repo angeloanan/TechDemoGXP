@@ -72,9 +72,48 @@ public struct Vec2 {
   }
 
   /// <summary>
-  /// Returns the unit normal of the vector.
+  /// Same with <see cref="Rotate" /> but takes in degrees instead of radians.
   /// </summary>
-  /// <returns></returns>
+  /// <param name="angleDegrees"></param>
+  public void SetAngleDegrees(float angleDegrees) {
+    this.SetAngle((float)(angleDegrees * Math.PI / 180));
+  }
+  
+  /// <summary>
+  /// Sets the angle of the vector.
+  /// </summary>
+  /// <param name="angleRadians"></param>
+  public void SetAngle(float angleRadians) {
+    var length = this.Length();
+
+    this.X = (float)(Math.Cos(angleRadians) * length);
+    this.Y = (float)(Math.Sin(angleRadians) * length);
+  }
+  
+  public float GetAngleDegrees() {
+    return (float)(this.GetAngle() * 180 / Math.PI);
+  }
+  
+  public float GetAngle() {
+    return (float)Math.Atan2(this.Y, this.X);
+  }
+  
+  public void RotateAroundDegrees(Vec2 point, float angleDegrees) {
+    this.RotateAround(point, (float)(angleDegrees * Math.PI / 180));
+  }
+  
+  public void RotateAround(Vec2 point, float angleRadians) {
+    var rotatedX = (float)(Math.Cos(angleRadians) * (this.X - point.X) - Math.Sin(angleRadians) * (this.Y - point.Y) + point.X);
+    var rotatedY = (float)(Math.Sin(angleRadians) * (this.X - point.X) + Math.Cos(angleRadians) * (this.Y - point.Y) + point.Y);
+
+    this.X = rotatedX;
+    this.Y = rotatedY;
+  }
+  
+  /// <summary>
+  /// Calculates the normal (perpendicular in 2D) of the vector.
+  /// </summary>
+  /// <returns>Unit normal</returns>
   public Vec2 UnitNormal() {
     var normalized = this.Normalized();
 
@@ -210,6 +249,26 @@ public struct Vec2 {
   public static float AngleBetween(Vec2 left, Vec2 right) {
     return (float)Math.Acos(Dot(left, right) / (left.Length() * right.Length()));
   }
+  
+  public static float Deg2Rad(float degrees) {
+    return degrees * (float)Math.PI / 180;
+  }
+  
+  public static float Rad2Deg(float radians) {
+    return radians * 180 / (float)Math.PI;
+  }
+  
+  public static Vec2 GetUnitVectorDeg(float degrees) {
+    return GetUnitVectorRad(Deg2Rad(degrees));
+  }
+  
+  public static Vec2 GetUnitVectorRad(float radians) {
+    return new Vec2((float)Math.Cos(radians), (float)Math.Sin(radians));
+  }
+  
+  // public static Vec2 RandomUnitVector() {
+  //   return GetUnitVectorRad((float)new Random.NextDouble() * (float)Math.PI * 2);
+  // }
   
   // Unit test for the above methods
 }
