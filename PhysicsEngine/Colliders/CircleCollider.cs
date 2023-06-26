@@ -159,7 +159,7 @@ namespace Physics {
 
     // Tested working properly - June 26 @ 7:16AM
     // Rewrote using exact Point-Line distance formula
-    // TODO: Further rewrite to allow both normal to be reflected
+    // TODO: Further rewrite to allow both normals to be reflected
     CollisionDetail GetCollisionTime(LineSegment line, Vec2 velocity) {
       var lineVector = line.EndPosition - line.StartPosition;
       var otherLineVector = line.StartPosition - line.EndPosition;

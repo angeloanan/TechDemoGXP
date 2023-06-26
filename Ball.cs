@@ -18,8 +18,6 @@ class Ball : AnimationSprite {
     SetFrame(25);
     scale = 0.5f;
 
-    // Create collider, and register it (as trigger!):
-    // (Note: in the current code, this collider is not used, so it could be omitted.)
     _ballCollider = new CircleCollider(this, startPosition, width / 2);
     _engine = ColliderManager.Main;
     _engine.AddSolidCollider(_ballCollider);
@@ -32,26 +30,26 @@ class Ball : AnimationSprite {
     // Gravity
     Velocity += new Vec2(0, 10) / 60;
 
-    // TODO: Refactor MoveUntilCollision to use out variables
     var shouldStillMove = true;
-    var time = 1F;
+    var targetTime = 1F;
     // Repetitively move the ball THIS frame
-    while (shouldStillMove || time < 0.001F) {
-      var collision = _engine.MoveUntilCollision(_ballCollider, Velocity, time);
+    while (shouldStillMove || targetTime < 0.001F) {
+      // TODO: Refactor MoveUntilCollision to use out variables
+      // TODO: Use recursion instead of a while loop
+      var collision = _engine.MoveUntilCollision(_ballCollider, Velocity, targetTime);
 
       if (collision != null) {
         Console.WriteLine(
           $"Ball collided with {collision.Other.Owner} at {collision.Other.Position} with normal {collision.Normal}");
 
-        // TODO: Refactor to switch(typeof collision.Other.Owner)
         switch (collision.Other.Owner) {
           case Ball _:
-            HandleBallBallCollision(collision);
+            // Special case - Ball Ball collision
+            HandleBallBallCollision(collision); 
             break;
 
           default: {
             // Reflect velocity, considering the normal of the collision:
-            // TODO: Bug: When hitting a platform, the ball gets stuck in the platform
             Velocity = Velocity.Reflect(collision.Normal, collision.Other.Owner is Platform ? 0.75f : 0.98f);
             Gizmos.DrawArrow(this.x, this.y, collision.Normal.X * 50, collision.Normal.Y * 50);
             Gizmos.DrawArrow(this.x, this.y, Velocity.X, Velocity.Y, 0.25F, null, 0xffff0000, 2);
@@ -60,7 +58,7 @@ class Ball : AnimationSprite {
         }
 
         _bounces += 1;
-        time -= collision.TimeOfImpact;
+        targetTime -= collision.TimeOfImpact;
       }
       else {
         shouldStillMove = false;
@@ -75,17 +73,11 @@ class Ball : AnimationSprite {
         break;
       }
     }
-
-    if (_bounces >= MaxBounces || x < 0 || x > game.width || y < 0 || y > game.height) {
-      LateDestroy();
-      Console.WriteLine("Removing projectile");
-    }
   }
 
   private void HandleBallBallCollision(CollisionDetail collision) {
     var otherBall = (Ball)collision.Other.Owner;
 
-    // Special case - Ball Ball collision
     var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
     var eachBallVelocity = totalVelocity / 2; // CHEAT: we assume both balls have the same mass
     eachBallVelocity *= 0.98F;
@@ -104,7 +96,7 @@ class Ball : AnimationSprite {
   public void scrambleDirection() {
     var randomAngle = new Random().Next(0, 360);
 
-    Velocity = Velocity.RotatedDegrees(randomAngle);
+    Velocity.SetAngleDegrees(randomAngle);
   }
 
   void Update() {
