@@ -46,7 +46,7 @@ class Ball : AnimationSprite {
         // TODO: Refactor to switch(typeof collision.Other.Owner)
         switch (collision.Other.Owner) {
           case Ball _:
-            handleBallBallCollision(collision);
+            HandleBallBallCollision(collision);
             break;
 
           default: {
@@ -68,6 +68,12 @@ class Ball : AnimationSprite {
 
       x = _ballCollider.Position.X;
       y = _ballCollider.Position.Y;
+
+      if (_bounces >= MaxBounces) {
+        Console.WriteLine("Removing projectile");
+        LateDestroy();
+        break;
+      }
     }
 
     if (_bounces >= MaxBounces || x < 0 || x > game.width || y < 0 || y > game.height) {
@@ -76,22 +82,23 @@ class Ball : AnimationSprite {
     }
   }
 
-  private void handleBallBallCollision(CollisionDetail collision) {
+  private void HandleBallBallCollision(CollisionDetail collision) {
     var otherBall = (Ball)collision.Other.Owner;
 
     // Special case - Ball Ball collision
     var totalVelocity = Velocity.Length() + otherBall.Velocity.Length();
     var eachBallVelocity = totalVelocity / 2; // CHEAT: we assume both balls have the same mass
+    eachBallVelocity *= 0.98F;
 
-    var collisionNormal = (collision.Other.Position - this._ballCollider.Position).Perpendicular()
-      .RotatedDegrees(90);
+    var collisionNormal = collision.Normal;
 
     Gizmos.DrawLine(_ballCollider.Position.X, _ballCollider.Position.Y,
       _ballCollider.Position.X + collisionNormal.X, _ballCollider.Position.Y + collisionNormal.Y,
       null, 0xffff0000);
-    
-    this.Velocity =
-      collisionNormal.Normalized() * eachBallVelocity; // bug? need to change both velocities at the same time
+
+    Velocity =
+      collisionNormal.Normalized() * eachBallVelocity;
+    otherBall.Velocity = collisionNormal.Normalized().RotatedDegrees(180) * eachBallVelocity;
   }
 
   public void scrambleDirection() {

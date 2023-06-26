@@ -18,9 +18,8 @@ class FuzzerTarget : AnimationSprite {
   }
   
   void Update() {
-    var overlaps = ColliderManager.Main.GetOverlaps(_collider);
+    var overlaps = ColliderManager.Main.GetOverlaps(_collider).FindAll(c => c.Owner is Ball);
     if (overlaps.Count <= 0) return;
-    if (overlaps[0].Owner is Player) return;
     
     Console.WriteLine("Fuzzer Target hit with {0}. Scrambling velocity...", overlaps[0].Owner);
     ((Ball)overlaps[0].Owner).scrambleDirection();
