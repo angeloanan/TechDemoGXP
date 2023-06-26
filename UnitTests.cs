@@ -18,7 +18,7 @@ namespace GXPEngine {
       GetAngleRadiansTest();
       // UnitNormalTest();
       // UnitTangentTest();
-      // ReflectionTest();
+      ReflectionTest();
       ProjectionTest();
       DistanceTest();
       CrossTest();
@@ -126,10 +126,10 @@ namespace GXPEngine {
       var vec = new Vec2(1.2F, 3.4F);
       var normal = new Vec2(0, 1);
       
-      Assert.AreEqual(new Vec2(-1.2f, 3.4f), vec.Reflect(normal));
+      Assert.AreEqual(new Vec2(1.2f, -3.4f), vec.Reflect(normal));
 
       vec = new Vec2(1,1);
-      Assert.AreEqual(new Vec2(-1f, 0.5f), vec.Reflect(normal, 0.5f));
+      Assert.AreEqual(new Vec2(1f, -0.5f), vec.Reflect(normal, 0.5f));
     }
   
     public static void ProjectionTest() {
